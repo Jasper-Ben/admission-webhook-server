@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "helper.fullname" . }}
+  namespace: {{ .Release.Namespace }}
   labels:
 {{- include "helper.labels" . | indent 4 }}
 spec:
@@ -34,11 +35,15 @@ spec:
         ports:
         - name: https
           containerPort: 8443
+        {{- if eq .Values.useTrustRoot.enabled false }}
         volumeMounts:
         - name: tls
           mountPath: /run/secrets/tls
           readOnly: true
+        {{- end }}
+      {{- if eq .Values.useTrustRoot.enabled false }}
       volumes:
       - name: tls
         secret:
           secretName: {{ template "helper.fullname" . }}-tls
+      {{- end }}

@@ -12,7 +12,9 @@ webhooks:
       namespace: {{ .Release.Namespace }}
       name: {{ .Values.service.name }}
       path: '/{{ default "mutate" .Values.basePathOverride }}/{{ default "pod-nodes-selector" .Values.podNodesSelectorPathOverride }}' 
+    {{- if eq .Values.useTrustRoot.enabled false }}
     caBundle: '{{ .Files.Get "ssl/ca.crt" | b64enc }}'
+    {{- end }}
   rules: 
   - operations: 
     - CREATE
@@ -22,3 +24,4 @@ webhooks:
     - "*"
     resources:
     - pods
+    scope: {{ .Values.mutatingWebhookConfig.scope }}
